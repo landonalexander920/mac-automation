@@ -1,19 +1,20 @@
 #!/bin/zsh
 # clean_downloads.sh
 # Sorts everything in your Downloads folder into subfolders by file type.
-# Run it with --dry-run first to preview what would move without touching anything.
+# Run "plan" to preview, then "apply" to actually move files. Nothing runs by default.
 # Nothing is ever deleted. Files only get moved into folders.
 
 DOWNLOADS="$HOME/Downloads"
-DRY_RUN=false
-
-# Only accept no argument or --dry-run. A typo like --dryrun stops the script
-# instead of accidentally running it for real.
-if [[ $# -gt 1 || ( $# -eq 1 && "$1" != "--dry-run" ) ]]; then
-  echo "Usage: clean_downloads.sh [--dry-run]"
+# Safe by default: nothing moves unless you type "apply"
+if [[ $# -ne 1 || ( "$1" != "plan" && "$1" != "apply" ) ]]; then
+  echo "Usage: clean_downloads.sh plan|apply"
+  echo "  plan  = preview what would move"
+  echo "  apply = actually move the files"
   exit 1
 fi
-[[ "$1" == "--dry-run" ]] && DRY_RUN=true
+
+DRY_RUN=true
+[[ "$1" == "apply" ]] && DRY_RUN=false
 
 # Make sure the Downloads folder actually exists before doing anything
 if [[ ! -d "$DOWNLOADS" ]]; then
@@ -70,7 +71,7 @@ for file in "$DOWNLOADS"/*(.N); do
 done
 
 if $DRY_RUN; then
-  echo "\nPreview done. $moved file(s) would be moved. Run without --dry-run to do it for real."
+  echo "\nPreview done. $moved file(s) would be moved. Run with apply to do it for real."
 else
   echo "\nDone. Moved $moved file(s)."
 fi
